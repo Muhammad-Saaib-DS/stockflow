@@ -1,70 +1,87 @@
-import { useSelector } from 'react-redux';
-import { useSelector as useSelectorAlias } from 'react-redux'; // (not used, just avoiding confusion below)
+import { useSelector } from "react-redux";
+import {
+  FaUser,
+  FaEnvelope,
+  FaUserShield,
+  FaShoppingBag,
+  FaBoxOpen,
+} from "react-icons/fa";
+
+import "./profile.css";
 
 function Profile() {
   const { user, role } = useSelector((state) => state.auth);
-  const { items: products } = useSelector((state) => state.products);
-
-  const myProducts = products.filter((p) => p.isLocal);
-  const lowStockCount = products.filter((p) => p.quantity <= p.lowStockThreshold).length;
+  const orders = useSelector((state) => state.orders.items);
+  const cartItems = useSelector((state) => state.cart.items);
 
   return (
-    <div>
-      <div className="page-header">
-        <h1>Profile</h1>
+    <section className="profile-page">
+
+      <div className="profile-card">
+
+        <div className="profile-avatar">
+          <FaUser />
+        </div>
+
+        <h1>{user?.username || "Guest User"}</h1>
+
+        <span className="role-badge-profile">
+          {role || "Customer"}
+        </span>
+
       </div>
 
-      <div className="card" style={{ maxWidth: '480px' }}>
-        <div className="detail-field">
-          <div className="label">Username</div>
-          <div className="value">{user?.username}</div>
-        </div>
+      <div className="profile-details">
 
-        <div className="detail-field">
-          <div className="label">Email</div>
-          <div className="value">{user?.email || 'Not provided'}</div>
-        </div>
+        <div className="info-card">
 
-        <div className="detail-field">
-          <div className="label">Role</div>
-          <div className="value">
-            <span className={`role-badge ${role}`}>{role}</span>
+          <FaEnvelope />
+
+          <div>
+            <h3>Email</h3>
+            <p>{user?.email || "Not Available"}</p>
           </div>
+
         </div>
 
-        <div className="detail-field">
-          <div className="label">Access Level</div>
-          <div className="value">
-            {role === 'admin' && 'Full access — manage products, categories, and view all data.'}
-            {role === 'manager' && 'Can manage products and categories.'}
-            {role === 'user' && 'View-only access to products and dashboard.'}
+        <div className="info-card">
+
+          <FaUserShield />
+
+          <div>
+            <h3>Role</h3>
+            <p>{role}</p>
           </div>
+
         </div>
+
       </div>
 
-      <div className="charts-row" style={{ marginTop: '1.5rem' }}>
-        <div className="chart-card" style={{ minWidth: '200px' }}>
-          <h3>Products You've Added</h3>
-          <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-            {myProducts.length}
-          </p>
+      <div className="profile-stats">
+
+        <div className="stat-box">
+
+          <FaShoppingBag />
+
+          <h2>{orders.length}</h2>
+
+          <p>Total Orders</p>
+
         </div>
 
-        <div className="chart-card" style={{ minWidth: '200px' }}>
-          <h3>Total Products Visible</h3>
-          <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            {products.length}
-          </p>
+        <div className="stat-box">
+
+          <FaBoxOpen />
+
+          <h2>{cartItems.length}</h2>
+
+          <p>Items In Cart</p>
+
         </div>
 
-        <div className="chart-card" style={{ minWidth: '200px' }}>
-          <h3>Low Stock Items</h3>
-          <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent-danger)' }}>
-            {lowStockCount}
-          </p>
-        </div>
       </div>
-    </div>
+
+    </section>
   );
 }
 

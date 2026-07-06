@@ -1,0 +1,133 @@
+.shop-page {
+  padding: 40px 5%;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.shop-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.shop-header h1 {
+  font-size: 48px;
+  color: #0f172a;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.shop-header p {
+  color: #64748b;
+  font-size: 17px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.shop-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 35px;
+  align-items: start;
+}
+
+.shop-content {
+  width: 100%;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.shop-loading {
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.empty-products {
+  background: white;
+  border-radius: 20px;
+  padding: 80px 30px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.06);
+}
+
+.empty-products h2 {
+  font-size: 32px;
+  color: #0f172a;
+  margin-bottom: 15px;
+}
+
+.empty-products p {
+  color: #64748b;
+  font-size: 16px;
+}
+
+@media (max-width: 1200px) {
+  .shop-layout {
+    grid-template-columns: 250px 1fr;
+    gap: 25px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .shop-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .shop-page {
+    padding: 30px 20px;
+  }
+
+  .shop-header h1 {
+    font-size: 36px;
+  }
+
+  .shop-header p {
+    font-size: 15px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  .empty-products {
+    padding: 60px 20px;
+  }
+
+  .empty-products h2 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 576px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shop-header h1 {
+    font-size: 30px;
+  }
+
+  .shop-header {
+    margin-bottom: 30px;
+  }
+}

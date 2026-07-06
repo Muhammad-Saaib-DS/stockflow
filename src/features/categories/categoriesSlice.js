@@ -29,6 +29,7 @@ export const fetchCategories = createAsyncThunk(
       const initial = response.data.map((cat, index) => ({
         id: index + 1,
         name: cat.name,
+        slug: cat.slug || cat.name.toLowerCase(),
       }));
       saveCategories(initial);
       return initial;
@@ -52,6 +53,7 @@ const categoriesSlice = createSlice({
       const newCategory = {
         id: Date.now(),
         name: action.payload,
+        slug: action.payload.toLowerCase(),
       };
       state.items.push(newCategory);
       saveCategories(state.items);
@@ -61,6 +63,7 @@ const categoriesSlice = createSlice({
       const category = state.items.find((c) => c.id === id);
       if (category) {
         category.name = name;
+        category.slug = name.toLowerCase();
         saveCategories(state.items);
       }
     },

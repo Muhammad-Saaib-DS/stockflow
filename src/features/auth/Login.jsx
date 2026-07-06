@@ -1,70 +1,108 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { loginUser } from './authSlice';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  FaUser,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
+
+import { loginUser } from "./authSlice";
+
+import "./login.css";
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status, error } = useSelector((state) => state.auth);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const result = await dispatch(loginUser({ username, password }));
-    if (loginUser.fulfilled.match(result)) {
-      navigate('/dashboard');
+  const { status, error, token } = useSelector(
+    (state) => state.auth
+  );
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
     }
+  }, [token, navigate]);
+
+  function handleChange(e) {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    dispatch(loginUser(form));
   }
 
   return (
-    <div className="auth-page-pro">
-      <div className="card auth-card-pro">
-        <div className="auth-logo-pro">
-          <div className="icon-box">📦</div>
-          <h2>StockFlow</h2>
-          <p className="subtitle">Sign in to manage your inventory</p>
-        </div>
+    <section className="login-page">
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Username</label>
+      <div className="login-left">
+        <h1>StockFlow</h1>
+        <h2>Inventory Management System</h2>
+        <p>
+          Manage products, categories, orders,
+          customers and inventory with one
+          professional dashboard.
+        </p>
+      </div>
+
+      <div className="login-right">
+        <form className="login-card" onSubmit={handleSubmit}>
+
+          <h2>Welcome Back</h2>
+          <p>Login to continue</p>
+
+          <div className="input-box">
+            <FaUser />
             <input
-              className="input"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              className="input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              name="username"
+              placeholder="Username"
+              value={form.username}
+              onChange={handleChange}
             />
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={status === 'loading'} style={{ width: '100%' }}>
-            {status === 'loading' ? 'Logging in...' : 'Login'}
+          <div className="input-box">
+            <FaLock />
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
+          {error && <p className="login-error">{error}</p>}
+
+          <button className="login-btn" disabled={status === "loading"}>
+            {status === "loading" ? "Logging In..." : "Login"}
           </button>
 
-          {error && <p className="error-text">{error}</p>}
         </form>
-
-        <div className="auth-hint-pro">
-          <p>Test Accounts</p>
-          <div className="account-row"><span>Admin</span><span><b>emilys</b> / emilyspass</span></div>
-          <div className="account-row"><span>Manager</span><span><b>michaelw</b> / michaelwpass</span></div>
-          <div className="account-row"><span>User</span><span><b>sophiab</b> / sophiabpass</span></div>
-        </div>
       </div>
-    </div>
+
+    </section>
   );
 }
 

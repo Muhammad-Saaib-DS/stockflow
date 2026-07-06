@@ -1,133 +1,157 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories, addCategory, editCategory, deleteCategory } from './categoriesSlice';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { FaSearch, FaPlus, FaEdit, FaTrash, FaTags } from "react-icons/fa";
+import { fetchCategories, addCategory, editCategory, deleteCategory } from "./categoriesSlice";
+
+import "./categoryList.css";
 
 function CategoryList() {
   const dispatch = useDispatch();
-  const { items, status, error } = useSelector((state) => state.categories);
+  const { items: categories = [], status } = useSelector((state) => state.categories);
 
-  const [newName, setNewName] = useState('');
-  const [formError, setFormError] = useState('');
-
+  const [search, setSearch] = useState("");
+  const [newName, setNewName] = useState("");
+  const [formError, setFormError] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState('');
-  const [editError, setEditError] = useState('');
+  const [editName, setEditName] = useState("");
 
   useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
+    if (status === "idle") {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, status]);
+
+  const filteredCategories = categories.filter((category) =>
+    category.name?.toLowerCase().includes(search.toLowerCase())
+  );
 
   function validateName(name, excludeId = null) {
     const trimmed = name.trim();
-
-    if (!trimmed) {
-      return 'Category name cannot be empty.';
-    }
-    if (trimmed.length < 3) {
-      return 'Category name must be at least 3 characters.';
-    }
-    const duplicate = items.some(
+    if (!trimmed) return "Category name cannot be empty.";
+    if (trimmed.length < 3) return "Category name must be at least 3 characters.";
+    const duplicate = categories.some(
       (c) => c.name.toLowerCase() === trimmed.toLowerCase() && c.id !== excludeId
     );
-    if (duplicate) {
-      return 'A category with this name already exists.';
-    }
-    return '';
+    if (duplicate) return "A category with this name already exists.";
+    return "";
   }
 
   function handleAdd(e) {
     e.preventDefault();
-
-    const validationError = validateName(newName);
-    if (validationError) {
-      setFormError(validationError);
+    const error = validateName(newName);
+    if (error) {
+      setFormError(error);
       return;
     }
-
     dispatch(addCategory(newName.trim()));
-    setNewName('');
-    setFormError('');
+    setNewName("");
+    setFormError("");
   }
 
   function startEditing(category) {
     setEditingId(category.id);
     setEditName(category.name);
-    setEditError('');
   }
 
-  function handleSaveEdit(e) {
-    e.preventDefault();
-
-    const validationError = validateName(editName, editingId);
-    if (validationError) {
-      setEditError(validationError);
+  function saveEdit(id) {
+    const error = validateName(editName, id);
+    if (error) {
+      alert(error);
       return;
     }
-
-    dispatch(editCategory({ id: editingId, name: editName.trim() }));
+    dispatch(editCategory({ id, name: editName.trim() }));
     setEditingId(null);
   }
 
   function handleDelete(id) {
-    const confirmed = window.confirm('Delete this category? Products using it will keep their category name as text.');
-    if (confirmed) {
+    if (window.confirm("Delete this category?")) {
       dispatch(deleteCategory(id));
     }
   }
 
-  return (
-    <div>
-      <div className="page-header"><h1>Category Management</h1></div>
+  if (status === "loading") {
+    return (
+      <div className="category-loading">
+        Loading Categories...
+      </div>
+    );
+  }
 
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <form onSubmit={handleAdd} className="task-form-row">
-          <input
-            className="input"
-            type="text"
-            placeholder="New category name..."
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-          <button className="btn btn-primary" type="submit">Add Category</button>
-        </form>
-        {formError && <p className="error-text">{formError}</p>}
+  return (
+    <section className="category-page">
+
+      <div className="category-header">
+        <div>
+          <h1>Categories</h1>
+          <p>Organize products by categories.</p>
+        </div>
       </div>
 
-      {status === 'loading' && <p className="state-message">Loading categories...</p>}
-      {status === 'failed' && <p className="state-message error-text">{error}</p>}
+      <form
+        onSubmit={handleAdd}
+        style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}
+      >
+        <input
+          type="text"
+          placeholder="New category name..."
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+        <button type="submit" className="category-add-btn">
+          <FaPlus />
+          Add Category
+        </button>
+      </form>
 
-      <ul>
-        {items.map((category) => (
-          <li key={category.id} className="task-item" style={{ marginBottom: '0.5rem' }}>
+      {formError && <p style={{ color: "red" }}>{formError}</p>}
+
+      <div className="category-search">
+        <FaSearch />
+        <input
+          type="text"
+          placeholder="Search category..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <div className="category-grid">
+        {filteredCategories.map((category) => (
+          <div className="category-card" key={category.id}>
+
+            <div className="category-icon">
+              <FaTags />
+            </div>
+
             {editingId === category.id ? (
-              <form onSubmit={handleSaveEdit} style={{ display: 'flex', gap: '0.5rem', flex: 1 }}>
+              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
                 <input
-                  className="input"
-                  type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                 />
-                <button className="btn btn-primary" type="submit">Save</button>
-                <button className="btn btn-secondary" type="button" onClick={() => setEditingId(null)}>
-                  Cancel
-                </button>
-                {editError && <p className="error-text">{editError}</p>}
-              </form>
+                <button onClick={() => saveEdit(category.id)}>Save</button>
+                <button onClick={() => setEditingId(null)}>Cancel</button>
+              </div>
             ) : (
               <>
-                <span style={{ flex: 1 }}>{category.name}</span>
-                <button className="btn btn-secondary" onClick={() => startEditing(category)}>
-                  Edit
-                </button>
-                <button className="btn btn-danger" onClick={() => handleDelete(category.id)}>
-                  Delete
-                </button>
+                <h3>{category.name}</h3>
+
+                <div className="category-actions">
+                  <button onClick={() => startEditing(category)}>
+                    <FaEdit />
+                  </button>
+                  <button onClick={() => handleDelete(category.id)}>
+                    <FaTrash />
+                  </button>
+                </div>
               </>
             )}
-          </li>
+
+          </div>
         ))}
-      </ul>
-    </div>
+      </div>
+
+    </section>
   );
 }
 

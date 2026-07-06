@@ -1,0 +1,137 @@
+.checkout-page {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 35px;
+  padding: 50px 5%;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.checkout-form {
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.checkout-form h1 {
+  font-size: 38px;
+  color: #0f172a;
+  margin-bottom: 30px;
+}
+
+.checkout-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.checkout-form input,
+.checkout-form select {
+  width: 100%;
+  height: 55px;
+  padding: 0 18px;
+  border: 1px solid #dbe4ee;
+  border-radius: 12px;
+  outline: none;
+  font-size: 15px;
+  transition: .3s;
+}
+
+.checkout-form input:focus,
+.checkout-form select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+}
+
+.checkout-form button {
+  height: 58px;
+  border: none;
+  border-radius: 14px;
+  background: #2563eb;
+  color: white;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .3s;
+  margin-top: 10px;
+}
+
+.checkout-form button:hover {
+  background: #1d4ed8;
+}
+
+.checkout-summary {
+  position: sticky;
+  top: 100px;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 20px;
+  height: fit-content;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 30px rgba(15,23,42,.06);
+}
+
+.checkout-summary h2 {
+  font-size: 28px;
+  color: #0f172a;
+  margin-bottom: 25px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #edf2f7;
+  color: #475569;
+  font-size: 15px;
+}
+
+.summary-item span:first-child {
+  flex: 1;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e8f0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+@media (max-width: 992px) {
+  .checkout-page {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkout-page {
+    padding: 30px 20px;
+  }
+
+  .checkout-form {
+    padding: 25px;
+  }
+
+  .checkout-form h1 {
+    font-size: 30px;
+  }
+
+  .checkout-summary {
+    padding: 25px;
+  }
+
+  .summary-total {
+    font-size: 20px;
+  }
+}

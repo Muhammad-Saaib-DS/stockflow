@@ -1,139 +1,189 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { fetchProducts, setSearch, setCategoryFilter, setSortBy } from './productsSlice';
-import useDebounce from '../../hooks/useDebounce';
-import ProductForm from './ProductForm';
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  FaSearch,
+  FaEye,
+  FaEdit,
+  FaTrash,
+  FaPlus,
+} from "react-icons/fa";
 
-const PAGE_SIZE = 6;
+import {
+  fetchProducts,
+  deleteProduct,
+} from "./productsSlice";
+
+import ProductForm from "./ProductForm";
+import Modal from "../../components/Modal";
+
+import "./productList.css";
 
 function ProductList() {
   const dispatch = useDispatch();
-  const { items, status, error, filters } = useSelector((state) => state.products);
-  const categories = useSelector((state) => state.categories.items);
 
-  const debouncedSearch = useDebounce(filters.search, 400);
-  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    items: products = [],
+    status,
+  } = useSelector((state) => state.products);
+
+  const [search, setSearch] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    if (status === "idle") {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, status]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch, filters.category, filters.sortBy]);
-
-  // 1. Filter by search text
-  let processed = items.filter((product) =>
-    product.title.toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
-
-  // 2. Filter by category (case-insensitive - fixes the "Beauty" vs "beauty" bug)
-  if (filters.category !== 'all') {
-    processed = processed.filter(
-      (product) => product.category.toLowerCase() === filters.category.toLowerCase()
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) =>
+      product.title.toLowerCase().includes(search.toLowerCase())
     );
+  }, [products, search]);
+
+  async function handleDelete(product) {
+    const confirmed = window.confirm(
+      `Delete "${product.title}"?`
+    );
+
+    if (!confirmed) return;
+
+    await dispatch(deleteProduct(product));
   }
 
-  // 3. Sort
-  if (filters.sortBy === 'priceAsc') {
-    processed = [...processed].sort((a, b) => a.price - b.price);
-  } else if (filters.sortBy === 'priceDesc') {
-    processed = [...processed].sort((a, b) => b.price - a.price);
-  } else if (filters.sortBy === 'lowStock') {
-    processed = [...processed].sort(
-      (a, b) => (a.quantity - a.lowStockThreshold) - (b.quantity - b.lowStockThreshold)
+  if (status === "loading") {
+    return (
+      <div className="admin-loading">
+        Loading Products...
+      </div>
     );
   }
-
-  // 4. Paginate
-  const totalPages = Math.ceil(processed.length / PAGE_SIZE);
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const paginated = processed.slice(startIndex, startIndex + PAGE_SIZE);
 
   return (
-    <div>
-      <div className="page-header"><h1>Products</h1></div>
+    <>
+      <section className="product-list-page">
 
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <ProductForm />
-      </div>
+        <div className="page-header">
 
-      <div className="filters-row">
-        <input
-          className="input"
-          type="text"
-          placeholder="Search products..."
-          value={filters.search}
-          onChange={(e) => dispatch(setSearch(e.target.value))}
-        />
+          <div>
+            <h1>Products</h1>
+            <p>Manage your inventory.</p>
+          </div>
 
-        <select
-          className="input"
-          value={filters.category}
-          onChange={(e) => dispatch(setCategoryFilter(e.target.value))}
-        >
-          <option value="all">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.name}>{cat.name}</option>
-          ))}
-        </select>
-
-        <select
-          className="input"
-          value={filters.sortBy}
-          onChange={(e) => dispatch(setSortBy(e.target.value))}
-        >
-          <option value="default">Default Order</option>
-          <option value="priceAsc">Price: Low to High</option>
-          <option value="priceDesc">Price: High to Low</option>
-          <option value="lowStock">Low Stock First</option>
-        </select>
-      </div>
-
-      {status === 'loading' && <p className="state-message">Loading products...</p>}
-      {status === 'failed' && <p className="state-message error-text">{error}</p>}
-      {status === 'succeeded' && processed.length === 0 && (
-        <p className="state-message">No products match your filters.</p>
-      )}
-
-      <div className="product-grid">
-        {paginated.map((product) => {
-          const isLowStock = product.quantity <= product.lowStockThreshold;
-          return (
-            <Link key={product.id} to={`/products/${product.id}`} className="product-card">
-              <h4>{product.title}</h4>
-              <div className="meta">{product.category} · {product.supplier}</div>
-              <div className="price">${product.price}</div>
-              <div className="meta">
-                Qty: {product.quantity}
-                {isLowStock && <span className="low-stock-badge">Low Stock</span>}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="pagination">
           <button
-            className="btn btn-secondary"
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
+            className="add-product-btn"
+            onClick={() => setShowAddModal(true)}
           >
-            Previous
+            <FaPlus />
+            Add Product
           </button>
-          <span>Page {currentPage} of {totalPages}</span>
-          <button
-            className="btn btn-secondary"
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
+
         </div>
+
+        <div className="admin-search">
+
+          <FaSearch />
+
+          <input
+            type="text"
+            placeholder="Search product..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+        </div>
+
+        <div className="product-table">
+
+          <div className="table-header">
+            <span>Product</span>
+            <span>Category</span>
+            <span>Price</span>
+            <span>Rating</span>
+            <span>Actions</span>
+          </div>
+
+          {filteredProducts.map((product) => (
+
+            <div
+              className="table-row"
+              key={product.id}
+            >
+
+              <div className="product-cell">
+
+                <img
+                  src={product.thumbnail}
+                  alt={product.title}
+                />
+
+                <span>{product.title}</span>
+
+              </div>
+
+              <span className="category-badge">
+                {product.category}
+              </span>
+
+              <span>${product.price}</span>
+
+              <span>
+                {product.rating ?? "N/A"} ⭐
+              </span>
+
+              <div className="table-actions">
+
+                <Link to={`/products/${product.id}`}>
+                  <FaEye />
+                </Link>
+
+                <button
+                  onClick={() => setEditingProduct(product)}
+                >
+                  <FaEdit />
+                </button>
+
+                <button
+                  onClick={() => handleDelete(product)}
+                >
+                  <FaTrash />
+                </button>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </section>
+
+      {showAddModal && (
+        <Modal
+          title="Add Product"
+          onClose={() => setShowAddModal(false)}
+        >
+          <ProductForm
+            onSuccess={() => setShowAddModal(false)}
+          />
+        </Modal>
       )}
-    </div>
+
+      {editingProduct && (
+        <Modal
+          title="Edit Product"
+          onClose={() => setEditingProduct(null)}
+        >
+          <ProductForm
+            existingProduct={editingProduct}
+            onSuccess={() => setEditingProduct(null)}
+          />
+        </Modal>
+      )}
+    </>
   );
 }
 

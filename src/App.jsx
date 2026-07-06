@@ -1,116 +1,150 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, lazy, Suspense } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-import Navbar from './components/Navbar';
-import Login from './features/auth/Login';
-import About from './pages/About';
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import NotFound from './pages/NotFound';
-import ProductList from './features/products/ProductList';
-import ProductDetail from './features/products/ProductDetail';
-import ProtectedRoute from './components/ProtectedRoute';
-import RoleRoute from './components/RoleRoute';
-import { useTheme } from './context/ThemeContext';
-import { fetchCategories } from './features/categories/categoriesSlice';
+import { useTheme } from "./context/ThemeContext";
+import { fetchCategories } from "./features/categories/categoriesSlice";
 
-const CategoryList = lazy(() => import('./features/categories/CategoryList'));
+import CustomerLayout from "./layouts/CustomerLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import RoleRoute from "./components/RoleRoute";
+
+import Login from "./features/auth/Login";
+
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+
+import Shop from "./features/shop/Shop";
+import ShopProductDetail from "./features/shop/ShopProductDetail";
+import CategoryPage from "./features/shop/CategoryPage";
+
+import Cart from "./features/cart/Cart";
+
+import Checkout from "./features/orders/Checkout";
+import Orders from "./features/orders/Orders";
+
+import ProductList from "./features/products/ProductList";
+import ProductDetail from "./features/products/ProductDetail";
+
+const CategoryList = lazy(() =>
+  import("./features/categories/CategoryList")
+);
 
 function App() {
   const { theme } = useTheme();
+
   const dispatch = useDispatch();
+
   const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (token) {
       dispatch(fetchCategories());
     }
-  }, [token, dispatch]);
+  }, [dispatch, token]);
 
   return (
     <div data-theme={theme}>
       <BrowserRouter>
+
         <Routes>
-          {/* Public routes - no sidebar */}
+
+          {/* PUBLIC */}
+
+          <Route path="/" element={<CustomerLayout />}>
+
+            <Route index element={<Home />} />
+
+            <Route path="about" element={<About />} />
+
+          </Route>
+
           <Route path="/login" element={<Login />} />
-          <Route path="/about" element={<About />} />
 
-          {/* Protected routes - with sidebar layout */}
+          {/* CUSTOMER */}
+
           <Route
-            path="/dashboard"
             element={
-              <div className="app-shell">
-                <Navbar />
-                <main className="main-content">
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                </main>
-              </div>
+              <ProtectedRoute>
+                <CustomerLayout />
+              </ProtectedRoute>
             }
-          />
+          >
+
+            <Route path="/shop" element={<Shop />} />
+
+            <Route path="/shop/:id" element={<ShopProductDetail />} />
+
+            <Route
+              path="/category/:categoryName"
+              element={<CategoryPage />}
+            />
+
+            <Route path="/cart" element={<Cart />} />
+
+            <Route path="/checkout" element={<Checkout />} />
+
+            <Route path="/orders" element={<Orders />} />
+
+          </Route>
+
+          {/* ADMIN */}
+
           <Route
-            path="/products"
             element={
-              <div className="app-shell">
-                <Navbar />
-                <main className="main-content">
-                  <ProtectedRoute>
-                    <ProductList />
-                  </ProtectedRoute>
-                </main>
-              </div>
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
             }
-          />
+          >
+
+            <Route path="/dashboard" element={<Dashboard />} />
+
+            <Route path="/products" element={<ProductList />} />
+
+            <Route path="/products/:id" element={<ProductDetail />} />
+
+            <Route path="/profile" element={<Profile />} />
+
+            <Route
+              path="/categories"
+              element={
+                <RoleRoute
+                  allowedRoles={["admin", "manager"]}
+                >
+                  <Suspense
+                    fallback={
+                      <p className="state-message">
+                        Loading Categories...
+                      </p>
+                    }
+                  >
+                    <CategoryList />
+                  </Suspense>
+                </RoleRoute>
+              }
+            />
+
+          </Route>
+
+          {/* 404 */}
+
           <Route
-            path="/products/:id"
-            element={
-              <div className="app-shell">
-                <Navbar />
-                <main className="main-content">
-                  <ProtectedRoute>
-                    <ProductDetail />
-                  </ProtectedRoute>
-                </main>
-              </div>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <div className="app-shell">
-                <Navbar />
-                <main className="main-content">
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                </main>
-              </div>
-            }
+            path="*"
+            element={<NotFound />}
           />
 
-          {/* Role-restricted route - manager and admin only */}
-          <Route
-            path="/categories"
-            element={
-              <div className="app-shell">
-                <Navbar />
-                <main className="main-content">
-                  <RoleRoute allowedRoles={['manager', 'admin']}>
-                    <Suspense fallback={<p className="state-message">Loading Categories...</p>}>
-                      <CategoryList />
-                    </Suspense>
-                  </RoleRoute>
-                </main>
-              </div>
-            }
-          />
-
-          {/* 404 fallback */}
-          <Route path="*" element={<NotFound />} />
         </Routes>
+
       </BrowserRouter>
     </div>
   );

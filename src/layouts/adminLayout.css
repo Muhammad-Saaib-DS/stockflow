@@ -1,0 +1,32 @@
+.admin-layout{
+    display:flex;
+    min-height:100vh;
+    background:#f8fafc;
+}
+
+.admin-main{
+    flex:1;
+    margin-left:280px;
+    padding:35px;
+    min-height:100vh;
+    transition:.3s;
+    overflow-x:hidden;
+}
+
+@media(max-width:992px){
+
+.admin-main{
+    margin-left:80px;
+    padding:25px;
+}
+
+}
+
+@media(max-width:768px){
+
+.admin-main{
+    margin-left:0;
+    padding:20px;
+}
+
+}
