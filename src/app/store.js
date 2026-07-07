@@ -4,6 +4,7 @@ import productsReducer from '../features/products/productsSlice';
 import categoriesReducer from '../features/categories/categoriesSlice';
 import cartReducer from '../features/cart/cartSlice';
 import ordersReducer from '../features/orders/ordersSlice';
+import wishlistReducer from '../features/wishlist/wishlistSlice';
 import { setupInterceptors } from '../api/axiosInstance';
 
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
     categories: categoriesReducer,
     cart: cartReducer,
     orders: ordersReducer,
+    wishlist: wishlistReducer,
   },
 });
 

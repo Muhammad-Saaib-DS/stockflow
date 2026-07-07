@@ -33,8 +33,12 @@ const ordersSlice = createSlice({
       state.items.unshift(newOrder);
       saveOrders(state.items);
     },
+    deleteOrder: (state, action) => {
+      state.items = state.items.filter((order) => order.id !== action.payload);
+      saveOrders(state.items);
+    },
   },
 });
 
-export const { placeOrder } = ordersSlice.actions;
+export const { placeOrder, deleteOrder } = ordersSlice.actions;
 export default ordersSlice.reducer;

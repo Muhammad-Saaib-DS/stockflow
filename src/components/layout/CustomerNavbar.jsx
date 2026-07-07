@@ -16,7 +16,7 @@ function CustomerNavbar() {
   const cartItems = useSelector((state) => state.cart.items || []);
 
   const auth = useSelector((state) => state.auth);
-
+  const role = auth?.role;
   const user = auth?.user || null;
   const isAuthenticated = Boolean(auth?.token);
 
@@ -97,10 +97,13 @@ function CustomerNavbar() {
                 </button>
 
                 <div className="dropdown-menu">
-                  <Link to="/profile">My Profile</Link>
-                  <Link to="/orders">My Orders</Link>
-                  <button onClick={handleLogout}>Logout</button>
-                </div>
+  {(role === "admin" || role === "manager") && (
+    <Link to="/dashboard">Dashboard</Link>
+  )}
+  <Link to="/profile">My Profile</Link>
+  <Link to="/orders">My Orders</Link>
+  <button onClick={handleLogout}>Logout</button>
+</div>
               </div>
             ) : (
               <Link to="/login" className="login-btn">

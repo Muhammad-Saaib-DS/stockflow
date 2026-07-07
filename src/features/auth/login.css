@@ -105,6 +105,24 @@
     margin-bottom:15px;
 }
 
+.login-info{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    color:#334155;
+    margin-bottom:10px;
+}
+
+.login-link-btn{
+    border:none;
+    background:none;
+    color:#2563eb;
+    font-size:15px;
+    cursor:pointer;
+    text-align:left;
+    padding:0;
+}
+
 @media(max-width:992px){
 
 .login-page{

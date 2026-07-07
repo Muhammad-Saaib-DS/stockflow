@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
+
 import { useTheme } from "./context/ThemeContext";
 import { fetchCategories } from "./features/categories/categoriesSlice";
 
@@ -28,6 +29,7 @@ import ShopProductDetail from "./features/shop/ShopProductDetail";
 import CategoryPage from "./features/shop/CategoryPage";
 
 import Cart from "./features/cart/Cart";
+import Wishlist from "./features/wishlist/Wishlist";
 
 import Checkout from "./features/orders/Checkout";
 import Orders from "./features/orders/Orders";
@@ -70,7 +72,7 @@ function App() {
 
           <Route path="/login" element={<Login />} />
 
-          {/* CUSTOMER */}
+          {/* CUSTOMER - any logged-in user, regardless of role */}
 
           <Route
             element={
@@ -95,15 +97,19 @@ function App() {
 
             <Route path="/orders" element={<Orders />} />
 
+            <Route path="/profile" element={<Profile />} />
+
+            <Route path="/wishlist" element={<Wishlist />} />
+
           </Route>
 
-          {/* ADMIN */}
+          {/* ADMIN - restricted to admin/manager roles only */}
 
           <Route
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={["admin", "manager"]}>
                 <AdminLayout />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           >
 
@@ -112,8 +118,6 @@ function App() {
             <Route path="/products" element={<ProductList />} />
 
             <Route path="/products/:id" element={<ProductDetail />} />
-
-            <Route path="/profile" element={<Profile />} />
 
             <Route
               path="/categories"

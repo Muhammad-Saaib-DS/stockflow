@@ -220,3 +220,11 @@
   }
 
 }
+
+.wishlist-btn.active {
+  color: #ef4444;
+}
+
+.wishlist-btn.active svg {
+  fill: #ef4444;
+}
